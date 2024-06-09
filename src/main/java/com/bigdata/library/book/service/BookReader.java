@@ -15,8 +15,8 @@ public class BookReader {
     private final BookMongoRepository bookRepository;
     private final GroupBookMongoRepository groupBookRepository;
 
-    public List<BookImageUrl> findTopChildrenBooks(String shelfName) {
-        return bookRepository.findTopChildrenBooks(shelfName);
+    public List<BookImageUrl> findTopByShelf(String shelfName) {
+        return bookRepository.findTopByShelf(shelfName);
     }
 
     public List<BookTitle> findBooksByTitleAuthorLanguage(String title, String author, String language) {

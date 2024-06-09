@@ -20,19 +20,22 @@ public class ReadBooksApi {
         return bookService.findPublisherAverageRatingForSeries(seriesName);
     }
 
+    //stackoverflow
     @GetMapping("/top3BooksPerYear")
     public List<TopBooksPerYear> findTop3BooksPerYear() {
         return bookService.findTop3BooksPerYear();
     }
+
 
     @GetMapping("/booksByTitleAuthorLanguage")
     public List<BookTitle> findBooksByTitleAuthorLanguage(@RequestParam String title, @RequestParam String author, @RequestParam String language) {
         return bookService.findBooksByTitleAuthorLanguage(title, author, language);
     }
 
+
     @GetMapping("/topsByShelf")
     public List<BookImageUrl> findTopByShelf(String shelfName) {
-        return bookService.findTopChildrenBooks(shelfName);
+        return bookService.findTopByShelf(shelfName);
     }
 
     @GetMapping("/topReadBooksPerShelf")

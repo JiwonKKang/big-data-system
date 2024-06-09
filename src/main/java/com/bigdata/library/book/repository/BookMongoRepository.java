@@ -15,7 +15,7 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
     @Query(value = "{ 'shelves.name': ?0, 'text_reviews_count': { $gt: 3000 } }",
             fields = "{ '_id': 0, 'image_url': 1 }",
             sort = "{ 'ratings_count': -1 }")
-    List<BookImageUrl> findTopChildrenBooks(String shelfName);
+    List<BookImageUrl> findTopByShelf(String shelfName);
 
     @Query(value = "{ 'title': { $regex: ?0, $options: 'i' }, 'authors.name': { $regex: ?1, $options: 'i' }, 'language': { $regex: ?2, $options: 'i' } }",
             fields = "{ 'title': 1, '_id': 0 }")
@@ -26,7 +26,7 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
             "{ $addFields: { rating_counts: { $arrayToObject: { $map: { input: '$rating_dist_array', as: 'item', in: { k: { $arrayElemAt: [ { $split: ['$$item', ':'] }, 0 ] }, v: { $toInt: { $arrayElemAt: [ { $split: ['$$item', ':'] }, 1 ] } } } } } } }}",
             "{ $group: { _id: '$author_id', total_5_star: { $sum: '$rating_counts.5' }, total_4_star: { $sum: '$rating_counts.4' }, total_3_star: { $sum: '$rating_counts.3' }, total_2_star: { $sum: '$rating_counts.2' }, total_1_star: { $sum: '$rating_counts.1' } } }",
             "{ $project: { _id: 0, author_id: '$_id', total_5_star: 1, total_4_star: 1, total_3_star: 1, total_2_star: 1, total_1_star: 1 } }",
-            "{ $limit: 20 }"
+            "{ $limit: 10 }"
     })
     List<AuthorRating> getAuthorRatingDistributionForBook();
 
