@@ -4,7 +4,7 @@ WORKDIR /workspace/app
 COPY . .
 
 RUN ./gradlew build -x test
-RUN mkdir build/extracted && (java -Djarmode=layertools -jar build/libs/dalle-0.0.1.jar extract --destination build/extracted)
+RUN mkdir build/extracted && (java -Djarmode=layertools -jar build/libs/library-0.0.1.jar extract --destination build/extracted)
 
 FROM eclipse-temurin:17-jdk-alpine
 VOLUME /tmp
