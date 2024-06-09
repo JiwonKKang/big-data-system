@@ -4,6 +4,7 @@ import com.bigdata.library.book.domain.BooksDocument;
 import com.bigdata.library.book.repository.dto.BookImageUrl;
 import com.bigdata.library.book.repository.dto.BookTitle;
 import com.bigdata.library.book.repository.dto.*;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -14,8 +15,9 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
 
     @Query(value = "{ 'shelves.name': ?0, 'text_reviews_count': { $gt: 3000 } }",
             fields = "{ '_id': 0, 'image_url': 1 }",
-            sort = "{ 'ratings_count': -1 }")
-    List<BookImageUrl> findTopByShelf(String shelfName);
+            sort = "{ 'ratings_count': -1 }"
+    )
+    List<BookImageUrl> findTopByShelf(String shelfName, Pageable pageable);
 
     @Query(value = "{ 'title': { $regex: ?0, $options: 'i' }, 'authors.name': { $regex: ?1, $options: 'i' }, 'language': { $regex: ?2, $options: 'i' } }",
             fields = "{ 'title': 1, '_id': 0 }")
@@ -64,6 +66,7 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
     List<BooksPerShelf> getTopReadBooksPerShelf();
 
 
+
     // stackoverflow
     @Aggregation(pipeline = {
             "{ $match: { ratings_count: { $gte: 100000 }, original_publication_date: { $regex: '^(?:\\d{4}|\\d{4}-\\d{2}-\\d{2})$' } } }",
@@ -78,7 +81,7 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
 
 
 
-    // timeout
+    // stackoverflow
     @Aggregation(pipeline = {
             "{ $project: { original_publication_date: 1 } }",
             "{ $match: { original_publication_date: { $regex: '^(?:\\d{4}|\\d{4}-\\d{2}-\\d{2})$' } } }",

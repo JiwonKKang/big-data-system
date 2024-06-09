@@ -19,6 +19,7 @@ import java.util.List;
 public class BooksDocument {
 
     @Id
+    private String _id;
     private String id;
     private String title;
     private List<AuthorDocument> authors;

@@ -4,6 +4,7 @@ import com.bigdata.library.book.repository.BookMongoRepository;
 import com.bigdata.library.book.repository.GroupBookMongoRepository;
 import com.bigdata.library.book.repository.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,7 +17,8 @@ public class BookReader {
     private final GroupBookMongoRepository groupBookRepository;
 
     public List<BookImageUrl> findTopByShelf(String shelfName) {
-        return bookRepository.findTopByShelf(shelfName);
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        return bookRepository.findTopByShelf(shelfName, pageRequest);
     }
 
     public List<BookTitle> findBooksByTitleAuthorLanguage(String title, String author, String language) {
