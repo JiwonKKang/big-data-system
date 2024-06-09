@@ -20,7 +20,6 @@ spring:
     mongodb:
       uri: mongodb://34.64.109.220:50001/library
 
-
 logging:
   level:
     org:
