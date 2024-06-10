@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Books by Shelf</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            gap: 10px;
+            justify-content: start;
+            white-space: nowrap;
+        }
+        .book {
+            display: inline-block;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+            text-align: center;
+        }
+        .book img {
+            max-width: 100px;
+            max-height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .loader {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #chartContainer {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        canvas {
+            max-width: 500px;
+            max-height: 500px;
+            margin: 10px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+</head>
+<body>
+    <h1>Top Books by Shelf</h1>
+    <div>
+        <label for="shelfName">Shelf Name: </label>
+        <input type="text" id="shelfName" name="shelfName">
+        <button onclick="fetchBooks()">Get Top Books</button>
+    </div>
+    <div class="loader" id="loader"></div>
+    <div class="container" id="booksContainer"></div>
+    <div id="chartContainer"></div>
+
+    <script>
+        const serverIp = 'http://34.64.209.142:8081';
+
+        let authorRatingChart;
+        let bookRatingChart;
+
+        function logRequest(url, options) {
+            console.log(`Request: ${url}`, options);
+        }
+
+        function logResponse(url, response) {
+            console.log(`Response from: ${url}`, response);
+        }
+
+        function logError(url, error) {
+            console.error(`Error from: ${url}`, error);
+        }
+
+        function fetchBooks() {
+            const shelfName = document.getElementById('shelfName').value;
+            const loader = document.getElementById('loader');
+            const booksContainer = document.getElementById('booksContainer');
+            const chartContainer = document.getElementById('chartContainer');
+
+            loader.style.display = 'block';
+            booksContainer.innerHTML = ''; // Clear existing content
+            chartContainer.innerHTML = ''; // Clear charts
+
+            const url = `${serverIp}/api/books/topsByShelf?shelfName=${encodeURIComponent(shelfName)}`;
+            const options = { method: 'GET' };
+            logRequest(url, options);
+
+            fetch(url, options)
+                .then(response => {
+                    logResponse(url, response);
+                    return response.json();
+                })
+                .then(data => {
+                    loader.style.display = 'none';
+                    
+                    data.forEach(book => {
+                        const bookDiv = document.createElement('div');
+                        bookDiv.className = 'book';
+
+                        const img = document.createElement('img');
+                        img.src = book.image_url;
+                        img.alt = book.title;
+                        img.dataset.bookId = book.bookId;
+                        img.dataset.authorId = book.author_id; // 수정된 부분
+
+                        img.addEventListener('click', () => fetchBookDetails(book.author_id, book.bookId)); // 수정된 부분
+
+                        const title = document.createElement('p');
+                        title.textContent = book.title;
+
+                        bookDiv.appendChild(img);
+                        bookDiv.appendChild(title);
+                        booksContainer.appendChild(bookDiv);
+                    });
+                })
+                .catch(error => {
+                    logError(url, error);
+                    loader.style.display = 'none';
+                });
+        }
+
+        function fetchBookDetails(authorId, bookId) { // 수정된 부분
+            const chartContainer = document.getElementById('chartContainer');
+            chartContainer.innerHTML = ''; // Clear existing charts
+
+            const authorRatingUrl = `${serverIp}/api/books/authorRatingDistributionForBook?authorId=${authorId}`; // 수정된 부분
+            const bookRatingUrl = `${serverIp}/api/books/ratingDistributionForBook?bookId=${bookId}`; // 수정된 부분
+
+            logRequest(authorRatingUrl, { method: 'GET' });
+            logRequest(bookRatingUrl, { method: 'GET' });
+
+            Promise.all([
+                fetch(authorRatingUrl)
+                    .then(response => {
+                        logResponse(authorRatingUrl, response);
+                        return response.json();
+                    }),
+                fetch(bookRatingUrl)
+                    .then(response => {
+                        logResponse(bookRatingUrl, response);
+                        return response.json();
+                    })
+            ]).then(([authorRatings, bookRatings]) => {
+                if (authorRatings && authorRatings.length > 0) {
+                    renderAuthorRatingChart(authorRatings);
+                } else {
+                    console.error('No author ratings data available');
+                }
+
+                if (bookRatings && bookRatings.length > 0) {
+                    renderBookRatingChart(bookRatings[0]);
+                } else {
+                    console.error('No book ratings data available');
+                }
+            }).catch(error => {
+                logError(authorRatingUrl, error);
+                logError(bookRatingUrl, error);
+            });
+        }
+
+        function renderAuthorRatingChart(data) {
+            const labels = data.map(rating => `Author ${rating.author_id}`);
+            const total5Star = data.map(rating => rating.total_5_star);
+            const total4Star = data.map(rating => rating.total_4_star);
+            const total3Star = data.map(rating => rating.total_3_star);
+            const total2Star = data.map(rating => rating.total_2_star);
+            const total1Star = data.map(rating => rating.total_1_star);
+
+            const ctx = document.createElement('canvas');
+            document.getElementById('chartContainer').appendChild(ctx);
+
+            if (authorRatingChart) {
+                authorRatingChart.destroy();
+            }
+
+            authorRatingChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: '5 Star', data: total5Star, backgroundColor: 'rgba(75, 192, 192, 0.2)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1 },
+                        { label: '4 Star', data: total4Star, backgroundColor: 'rgba(54, 162, 235, 0.2)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1 },
+                        { label: '3 Star', data: total3Star, backgroundColor: 'rgba(255, 206, 86, 0.2)', borderColor: 'rgba(255, 206, 86, 1)', borderWidth: 1 },
+                        { label: '2 Star', data: total2Star, backgroundColor: 'rgba(153, 102, 255, 0.2)', borderColor: 'rgba(153, 102, 255, 1)', borderWidth: 1 },
+                        { label: '1 Star', data: total1Star, backgroundColor: 'rgba(255, 159, 64, 0.2)', borderColor: 'rgba(255, 159, 64, 1)', borderWidth: 1 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '작가의 전체 평점 분포'
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderBookRatingChart(data) {
+            const labels = Object.keys(data.ratings).filter(key => key !== 'total');
+            const counts = labels.map(label => data.ratings[label]);
+
+            const ctx = document.createElement('canvas');
+            document.getElementById('chartContainer').appendChild(ctx);
+
+            if (bookRatingChart) {
+                bookRatingChart.destroy();
+            }
+
+            bookRatingChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ratings',
+                        data: counts,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '도서 평점 분포'
+                        },
+                        datalabels: {
+                            formatter: (value, context) => {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(2);
+                                return `${value} (${percentage}%)`;
+                            },
+                            color: '#000',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+    </script>
+</body>
+</html>

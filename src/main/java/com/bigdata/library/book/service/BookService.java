@@ -37,12 +37,12 @@ public class BookService {
         return bookReader.findBookCountPerYear();
     }
 
-    public List<AuthorRating> findAuthorRatingDistributionForBook(String bookId) {
-        return bookReader.findAuthorRatingDistributionForBook(bookId);
+    public List<AuthorRating> findAuthorRatingDistributionForBook(String authorId) {
+        return bookReader.findAuthorRatingDistributionForBook(authorId);
     }
 
-    public List<BookRating> findRatingDistributionForBook(String authorId) {
-        return bookReader.findRatingDistributionForBook(authorId);
+    public List<BookRating> findRatingDistributionForBook(String bookId) {
+        return bookReader.findRatingDistributionForBook(bookId);
     }
 
     public List<ShelfRating> findAverageRatingForAuthor(String authorName) {

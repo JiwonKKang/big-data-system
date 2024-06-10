@@ -31,14 +31,14 @@ public class ReadBooksApi {
 
     @GetMapping("/authorRatingDistributionForBook")
     @Operation(summary = "특정 책의 작가별 평점 분포 조회 - query3")
-    public List<AuthorRating> findAuthorRatingDistributionForBook(String bookId) {
-        return bookService.findAuthorRatingDistributionForBook(bookId);
+    public List<AuthorRating> findAuthorRatingDistributionForBook(String authorId) {
+        return bookService.findAuthorRatingDistributionForBook(authorId);
     }
 
     @GetMapping("/ratingDistributionForBook")
     @Operation(summary = "특정 책의 평점 분포 조회 - query4")
-    public List<BookRating> findRatingDistributionForBook(String authorId) {
-        return bookService.findRatingDistributionForBook(authorId);
+    public List<BookRating> findRatingDistributionForBook(String bookId) {
+        return bookService.findRatingDistributionForBook(bookId);
     }
 
     @GetMapping("/averageRatingForAuthor")

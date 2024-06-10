@@ -23,7 +23,7 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
     List<BookInfo> findTopByShelf(String shelfName);
 
     @Query(value = "{ 'title': { $regex: ?0, $options: 'i' }, 'authors.name': { $regex: ?1, $options: 'i' }, 'language': { $regex: ?2, $options: 'i' } }",
-            fields = "{ 'title': 1, '_id': 0 }")
+            fields = "{ 'title': 1, 'image_url': 1, 'authors.name': 1, '_id': 0 }")
     List<BookTitle> findBooksByTitleAuthorLanguage(String title, String author, String language);
 
     @Aggregation(pipeline = {

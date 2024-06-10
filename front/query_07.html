@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Authors Per Shelf</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        .chart {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .shelf {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 10px;
+            width: 320px;
+            text-align: center;
+        }
+        .bar {
+            fill: steelblue;
+        }
+        .bar text {
+            fill: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .axis-label {
+            font-size: 12px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+        button {
+            display: block;
+            margin: 0 auto 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Top Authors Per Shelf</h1>
+    <button onclick="fetchData()">서가별 TOP3 작가 조회</button>
+    <div id="chart" class="chart"></div>
+
+    <script>
+        function fetchData() {
+            fetch('http://34.64.209.142:8081/api/books/top3AuthorsPerShelf', {
+                headers: {
+                    'accept': '*/*'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const chart = d3.select('#chart');
+                chart.html(''); // Clear existing content
+
+                data.forEach(shelf => {
+                    const shelfDiv = chart.append('div').attr('class', 'shelf');
+                    shelfDiv.append('h2').text(shelf._id);
+
+                    const svg = shelfDiv.append('svg')
+                        .attr('width', 280)
+                        .attr('height', 200);
+
+                    const xScale = d3.scaleBand()
+                        .domain(shelf.authors.map(author => author.name))
+                        .range([0, 280])
+                        .padding(0.1);
+
+                    const yScale = d3.scaleLinear()
+                        .domain([0, d3.max(shelf.authors, d => d.totalBooks)])
+                        .nice()
+                        .range([150, 0]);
+
+                    svg.append('g')
+                        .attr('transform', 'translate(0, 150)')
+                        .attr('class', 'axis-label')
+                        .call(d3.axisBottom(xScale));
+
+                    svg.append('g')
+                        .attr('class', 'axis-label')
+                        .call(d3.axisLeft(yScale));
+
+                    const bars = svg.selectAll('.bar')
+                        .data(shelf.authors)
+                        .enter()
+                        .append('g')
+                        .attr('class', 'bar');
+
+                    bars.append('rect')
+                        .attr('x', d => xScale(d.name))
+                        .attr('y', d => yScale(d.totalBooks))
+                        .attr('width', xScale.bandwidth())
+                        .attr('height', d => 150 - yScale(d.totalBooks));
+
+                    bars.append('text')
+                        .attr('x', d => xScale(d.name) + xScale.bandwidth() / 2)
+                        .attr('y', d => yScale(d.totalBooks) + 15)
+                        .attr('text-anchor', 'middle')
+                        .text(d => d.totalBooks);
+
+                    shelfDiv.append('ul').selectAll('li')
+                        .data(shelf.authors)
+                        .enter()
+                        .append('li')
+                        .text(d => `${d.name}: ${d.averageRating} stars`);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+        }
+    </script>
+</body>
+</html>
