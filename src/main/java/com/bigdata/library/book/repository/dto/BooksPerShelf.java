@@ -4,6 +4,6 @@ public record BooksPerShelf(
         String shelfName,
         String topBookTitle,
         Integer topBookReadCount,
-        Double averageRating
+        Double average_rating
 ) {
 }

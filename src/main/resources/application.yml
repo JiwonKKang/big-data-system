@@ -14,3 +14,8 @@ logging:
           mongodb:
             core:
               MongoTemplate: DEBUG
+
+
+server:
+  tomcat:
+    connection-timeout: 1800000

@@ -1,5 +1,6 @@
 package com.bigdata.library.book.api;
 
+import com.bigdata.library.book.repository.ShelfBookSummary;
 import com.bigdata.library.book.repository.dto.*;
 import com.bigdata.library.book.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,8 +31,8 @@ public class ReadBooksApi {
 
     @GetMapping("/authorRatingDistributionForBook")
     @Operation(summary = "특정 책의 작가별 평점 분포 조회 - query3")
-    public List<AuthorRating> findAuthorRatingDistributionForBook() {
-        return bookService.findAuthorRatingDistributionForBook();
+    public List<AuthorRating> findAuthorRatingDistributionForBook(String bookId) {
+        return bookService.findAuthorRatingDistributionForBook(bookId);
     }
 
     @GetMapping("/ratingDistributionForBook")
@@ -60,8 +61,8 @@ public class ReadBooksApi {
 
     @GetMapping("/topReadBooksPerShelf")
     @Operation(summary = "서가별 Top 읽은 책 조회 - query8")
-    public List<BooksPerShelf> findTopReadBooksPerShelf() {
-        return bookService.findTopReadBooksPerShelf();
+    public List<ShelfBookSummary> findTopReadBooksPerShelf() {
+        return bookService.getShelfBookSummaries();
     }
 
     //stackoverflow
@@ -74,16 +75,9 @@ public class ReadBooksApi {
     //stackoverflow
     @GetMapping("/bookCountPerYear")
     @Operation(summary = "연도별 책 발간 수 조회 - query10 ")
-    public List<BookCount> findBookCountPerYear() {
+    public List<BookCountPerYear> findBookCountPerYear() {
         return bookService.findBookCountPerYear();
     }
-
-
-
-
-
-
-
 
 
 }

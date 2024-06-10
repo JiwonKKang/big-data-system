@@ -1,5 +1,6 @@
 package com.bigdata.library.book.service;
 
+import com.bigdata.library.book.repository.ShelfBookSummary;
 import com.bigdata.library.book.repository.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,12 +33,12 @@ public class BookService {
         return bookReader.findTopReadBooksPerShelf();
     }
 
-    public List<BookCount> findBookCountPerYear() {
+    public List<BookCountPerYear> findBookCountPerYear() {
         return bookReader.findBookCountPerYear();
     }
 
-    public List<AuthorRating> findAuthorRatingDistributionForBook() {
-        return bookReader.findAuthorRatingDistributionForBook();
+    public List<AuthorRating> findAuthorRatingDistributionForBook(String bookId) {
+        return bookReader.findAuthorRatingDistributionForBook(bookId);
     }
 
     public List<BookRating> findRatingDistributionForBook(String bookId) {
@@ -50,6 +51,10 @@ public class BookService {
 
     public List<ShelfAuthors> findTop3AuthorsPerShelf() {
         return bookReader.findTop3AuthorsPerShelf();
+    }
+
+    public List<ShelfBookSummary> getShelfBookSummaries() {
+        return bookReader.getShelfBookSummaries();
     }
 
 

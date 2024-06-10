@@ -1,6 +1,7 @@
 package com.bigdata.library.book.repository.dto;
 
-public record BookCount(
+public record BookCountPerYear(
+        Integer _id,
         Integer count
 ) {
 }

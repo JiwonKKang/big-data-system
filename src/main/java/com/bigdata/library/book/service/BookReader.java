@@ -1,7 +1,9 @@
 package com.bigdata.library.book.service;
 
+import com.bigdata.library.book.repository.BookByShelfRepository;
 import com.bigdata.library.book.repository.BookMongoRepository;
 import com.bigdata.library.book.repository.GroupBookMongoRepository;
+import com.bigdata.library.book.repository.ShelfBookSummary;
 import com.bigdata.library.book.repository.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +17,7 @@ public class BookReader {
 
     private final BookMongoRepository bookRepository;
     private final GroupBookMongoRepository groupBookRepository;
+    private final BookByShelfRepository bookByShelfRepository;
 
     public List<BookImageUrl> findTopByShelf(String shelfName) {
         PageRequest pageRequest = PageRequest.of(0, 10);
@@ -33,7 +36,7 @@ public class BookReader {
         return bookRepository.getTop3BooksPerYear();
     }
 
-    public List<BookCount> findBookCountPerYear() {
+    public List<BookCountPerYear> findBookCountPerYear() {
         return bookRepository.getBookCountPerYear();
     }
 
@@ -45,8 +48,8 @@ public class BookReader {
         return groupBookRepository.getTop3AuthorsPerShelf();
     }
 
-    public List<AuthorRating> findAuthorRatingDistributionForBook() {
-        return bookRepository.getAuthorRatingDistributionForBook();
+    public List<AuthorRating> findAuthorRatingDistributionForBook(String bookId) {
+        return bookRepository.getAuthorRatingDistributionForBook(bookId);
     }
 
     public List<BookRating> findRatingDistributionForBook(String bookId) {
@@ -55,6 +58,10 @@ public class BookReader {
 
     public List<ShelfRating> findAverageRatingForAuthor(String authorName) {
         return bookRepository.getAverageRatingForAuthor(authorName);
+    }
+
+    public List<ShelfBookSummary> getShelfBookSummaries() {
+        return bookByShelfRepository.getShelfBookSummaries();
     }
 
 }

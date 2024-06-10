@@ -24,13 +24,13 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
     List<BookTitle> findBooksByTitleAuthorLanguage(String title, String author, String language);
 
     @Aggregation(pipeline = {
+            "{ $match: { id: ?0 } }",
             "{ $addFields: { rating_dist_array: { $split: ['$rating_dist', '|'] } } }",
-            "{ $addFields: { rating_counts: { $arrayToObject: { $map: { input: '$rating_dist_array', as: 'item', in: { k: { $arrayElemAt: [ { $split: ['$$item', ':'] }, 0 ] }, v: { $toInt: { $arrayElemAt: [ { $split: ['$$item', ':'] }, 1 ] } } } } } } }}",
+            "{ $addFields: { rating_counts: { $arrayToObject: { $map: { input: '$rating_dist_array', as: 'item', in: { k: { $arrayElemAt: [ { $split: ['$$item', ':'] }, 0 ] }, v: { $toInt: { $arrayElemAt: [ { $split: ['$$item', ':'] }, 1 ] } } } } } } } } }",
             "{ $group: { _id: '$author_id', total_5_star: { $sum: '$rating_counts.5' }, total_4_star: { $sum: '$rating_counts.4' }, total_3_star: { $sum: '$rating_counts.3' }, total_2_star: { $sum: '$rating_counts.2' }, total_1_star: { $sum: '$rating_counts.1' } } }",
-            "{ $project: { _id: 0, author_id: '$_id', total_5_star: 1, total_4_star: 1, total_3_star: 1, total_2_star: 1, total_1_star: 1 } }",
-            "{ $limit: 10 }"
+            "{ $project: { _id: 0, author_id: '$_id', total_5_star: 1, total_4_star: 1, total_3_star: 1, total_2_star: 1, total_1_star: 1 } }"
     })
-    List<AuthorRating> getAuthorRatingDistributionForBook();
+    List<AuthorRating> getAuthorRatingDistributionForBook(String bookId);
 
     @Aggregation(pipeline = {
             "{ $match: { id: ?0 } }",
@@ -67,9 +67,8 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
 
 
 
-    // stackoverflow
     @Aggregation(pipeline = {
-            "{ $match: { ratings_count: { $gte: 100000 }, original_publication_date: { $regex: '^(?:\\d{4}|\\d{4}-\\d{2}-\\d{2})$' } } }",
+            "{ $match: { ratings_count: { $gte: 100000 }, original_publication_date: { $regex: '^(?:\\\\d{4}|\\\\d{4}-\\\\d{2}-\\\\d{2})$' } } }",
             "{ $group: { _id: { year: { $toInt: { $substr: ['$original_publication_date', 0, 4] } }, book: '$title' }, averageRating: { $avg: '$average_rating' } } }",
             "{ $match: { '_id.year': { $lte: 2024 } } }",
             "{ $sort: { '_id.year': 1, averageRating: -1 } }",
@@ -81,13 +80,12 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
 
 
 
-    // stackoverflow
     @Aggregation(pipeline = {
             "{ $project: { original_publication_date: 1 } }",
-            "{ $match: { original_publication_date: { $regex: '^(?:\\d{4}|\\d{4}-\\d{2}-\\d{2})$' } } }",
+            "{ $match: { original_publication_date: { $regex: '^(?:\\\\d{4}|\\\\d{4}-\\\\d{2}-\\\\d{2})$' } } }",
             "{ $group: { _id: { $toInt: { $substr: ['$original_publication_date', 0, 4] } }, count: { $sum: 1 } } }",
             "{ $sort: { _id: -1 } }"
     })
-    List<BookCount> getBookCountPerYear();
+    List<BookCountPerYear> getBookCountPerYear();
 
 }
