@@ -11,7 +11,8 @@ public interface BookByShelfRepository extends MongoRepository<BooksByShelf, Boo
     @Aggregation(pipeline = {
             "{ $group: { _id: '$_id.shelf', topBook: { $first: '$_id.book' }, topBookReadCount: { $first: '$readCount' }, averageRating: { $first: '$averageRating' } } }",
             "{ $sort: { topBookReadCount: -1 } }",
-            "{ $project: { _id: 0, shelfName: '$_id', topBookTitle: '$topBook', topBookReadCount: '$topBookReadCount', averageRating: '$averageRating' } }"
+            "{ $project: { _id: 0, shelfName: '$_id', topBookTitle: '$topBook', topBookReadCount: '$topBookReadCount', averageRating: '$averageRating' } }",
+            "{ $limit: 30 }"
     })
     List<ShelfBookSummary> getShelfBookSummaries();
 

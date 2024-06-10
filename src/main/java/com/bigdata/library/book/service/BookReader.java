@@ -7,6 +7,7 @@ import com.bigdata.library.book.repository.ShelfBookSummary;
 import com.bigdata.library.book.repository.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
