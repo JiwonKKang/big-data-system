@@ -20,8 +20,7 @@ public class BookReader {
     private final BookByShelfRepository bookByShelfRepository;
 
     public List<BookInfo> findTopByShelf(String shelfName) {
-        PageRequest pageRequest = PageRequest.of(0, 10);
-        return bookRepository.findTopByShelf(shelfName, pageRequest);
+        return bookRepository.findTopByShelf(shelfName);
     }
 
     public List<BookTitle> findBooksByTitleAuthorLanguage(String title, String author, String language) {

@@ -1,8 +1,8 @@
 package com.bigdata.library.book.repository.dto;
 
 public record BookInfo(
-        String id,
+        String bookId,
         String title,
-        String imageUrl
+        String image_url
 ) {
 }

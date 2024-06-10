@@ -2,6 +2,6 @@ package com.bigdata.library.book.repository.dto;
 
 public record BookRecord(
         String title,
-        Double average_rating
+        Double averageRating
 ) {
 }

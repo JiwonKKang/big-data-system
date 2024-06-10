@@ -4,7 +4,6 @@ import com.bigdata.library.book.domain.BooksDocument;
 import com.bigdata.library.book.repository.dto.BookInfo;
 import com.bigdata.library.book.repository.dto.BookTitle;
 import com.bigdata.library.book.repository.dto.*;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -13,11 +12,15 @@ import java.util.List;
 
 public interface BookMongoRepository extends MongoRepository<BooksDocument, String> {
 
-    @Query(value = "{ 'shelves.name': ?0, 'text_reviews_count': { $gt: 3000 } }",
-            fields = "{ 'id': 1, 'title' : 1, 'image_url': 1 }",
-            sort = "{ 'ratings_count': -1 }"
-    )
-    List<BookInfo> findTopByShelf(String shelfName, Pageable pageable);
+    @Aggregation(pipeline = {
+            "{ $match: { 'shelves.name': ?0, 'text_reviews_count': { $gt: 3000 } } }",
+            "{ $sort: { 'ratings_count': -1 } }",
+            "{ $group: { _id: '$author_id', firstBook: { $first: '$$ROOT' } } }",
+            "{ $replaceRoot: { newRoot: '$firstBook' } }",
+            "{ $project: { _id: 0, bookId: '$id', title: 1, imageUrl: 1 } }",
+            "{ $limit: 10 }"
+    })
+    List<BookInfo> findTopByShelf(String shelfName);
 
     @Query(value = "{ 'title': { $regex: ?0, $options: 'i' }, 'authors.name': { $regex: ?1, $options: 'i' }, 'language': { $regex: ?2, $options: 'i' } }",
             fields = "{ 'title': 1, '_id': 0 }")
@@ -83,7 +86,8 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
     @Aggregation(pipeline = {
             "{ $project: { original_publication_date: 1 } }",
             "{ $match: { original_publication_date: { $regex: '^(?:\\\\d{4}|\\\\d{4}-\\\\d{2}-\\\\d{2})$' } } }",
-            "{ $group: { _id: { $toInt: { $substr: ['$original_publication_date', 0, 4] } }, count: { $sum: 1 } } }",
+            "{ $group: { _id: { $toInt: { $substr: [ '$original_publication_date', 0, 4 ] } }, count: { $sum: 1 } } }",
+            "{ $match: { _id: { $lt: 2023 } } }",
             "{ $sort: { _id: -1 } }"
     })
     List<BookCountPerYear> getBookCountPerYear();
