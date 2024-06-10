@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookshelf Ratings Visualization</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+  <canvas id="ratings-chart" width="400" height="200"></canvas>
+</div>
+
+<script th:inline="javascript">
+  let jsonData = [[${data}]];
+  let bookShelfData = JSON.parse(jsonData);
+  let filteredData = bookShelfData.filter(item => item.id !== "");
+  const seriesName = [[${seriesName}]];
+
+  const ctx = document.getElementById('ratings-chart').getContext('2d');
+  const labels = filteredData.map(item => item.id);
+  const averageRatings = filteredData.map(item => item.average_rating);
+  const totalBooks = filteredData.map(item => item.totalBooks);
+
+  new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Total Books',
+            data: totalBooks,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Average Rating',
+            data: averageRatings,
+            type: 'line',
+            fill: false,
+            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+            borderColor: 'rgba(153, 102, 255, 1)',
+            borderWidth: 1,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Total Books'
+            }
+          },
+          y1: {
+            beginAtZero: true,
+            position: 'right',
+            grid: {
+              drawOnChartArea: false
+            },
+            title: {
+              display: true,
+              text: 'Average Rating'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          title: {
+            display: true,
+            text: 'Bookshelf Ratings and Total Books for ' + seriesName
+          }
+        }
+      }
+    }
+  )
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Author Average Ratings</title>
+  <style>
+    .button {
+      background-color: #007bff;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+<h1>Author Average Ratings</h1>
+<div>
+  <label for="title">제목:</label>
+  <input type="text" id="title" name="title">
+  <label for="authorName">작가 이름:</label>
+  <input type="text" id="authorName" name="authorName">
+  <label for="language">언어:</label>
+  <input type="text" id="language" name="language">
+  <button class="button" onclick="searchBookInfo()">Search</button>
+</div>
+
+
+<script>
+  function searchBookInfo() {
+    const title = document.getElementById('title').value.trim();
+    const authorName = document.getElementById('authorName').value.trim();
+    const language = document.getElementById('language').value.trim();
+    if (title === '' || authorName === '' || language === '') {
+      alert('모든 항목을 채우세요.');
+      return;
+    }
+
+    // API 호출
+    fetch(`http://34.64.209.142:8081/api/books/booksByTitleAuthorLanguage?title=${encodeURIComponent(title)}&author=${encodeURIComponent(authorName)}&language=${encodeURIComponent(language)}`, {
+      headers: { 'accept': '*/*' }
+    })
+            .then(response => response.json())
+            .then(data => {
+              displayBookInfo(data);
+            })
+            .catch(error => {
+              console.error('Error fetching data:', error);
+            });
+  }
+  function displayBookInfo(data) {
+    const bookInfoDiv = document.getElementById('bookInfo');
+    bookInfoDiv.innerHTML = ''; // 이전 검색 결과 지우기
+
+    // 각 책 정보에 대해 반복하여 표시
+    data.forEach(book => {
+      const bookDiv = document.createElement('div');
+      bookDiv.innerHTML = `
+        <h2>${book.title}</h2>
+        <p>작가: ${book.authorName}</p>
+        <img src="${book.imageUrl}" alt="${book.title}">
+      `;
+      bookInfoDiv.appendChild(bookDiv);
+    });
+  }
+</script>
+</body>
+</html>
