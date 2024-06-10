@@ -19,7 +19,7 @@ public class ReadBooksApi {
 
     @GetMapping("/topsByShelf")
     @Operation(summary = "서가별 Top 책 조회 - query1")
-    public List<BookImageUrl> findTopByShelf(String shelfName) {
+    public List<BookInfo> findTopByShelf(String shelfName) {
         return bookService.findTopByShelf(shelfName);
     }
 

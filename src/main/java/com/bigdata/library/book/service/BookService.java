@@ -25,7 +25,7 @@ public class BookService {
         return bookReader.findBooksByTitleAuthorLanguage(title, author, language);
     }
 
-    public List<BookImageUrl> findTopByShelf(String shelfName) {
+    public List<BookInfo> findTopByShelf(String shelfName) {
         return bookReader.findTopByShelf(shelfName);
     }
 

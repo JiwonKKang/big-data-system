@@ -1,7 +1,7 @@
 package com.bigdata.library.book.repository;
 
 import com.bigdata.library.book.domain.BooksDocument;
-import com.bigdata.library.book.repository.dto.BookImageUrl;
+import com.bigdata.library.book.repository.dto.BookInfo;
 import com.bigdata.library.book.repository.dto.BookTitle;
 import com.bigdata.library.book.repository.dto.*;
 import org.springframework.data.domain.Pageable;
@@ -14,10 +14,10 @@ import java.util.List;
 public interface BookMongoRepository extends MongoRepository<BooksDocument, String> {
 
     @Query(value = "{ 'shelves.name': ?0, 'text_reviews_count': { $gt: 3000 } }",
-            fields = "{ '_id': 0, 'image_url': 1 }",
+            fields = "{ 'id': 1, 'title' : 1, 'image_url': 1 }",
             sort = "{ 'ratings_count': -1 }"
     )
-    List<BookImageUrl> findTopByShelf(String shelfName, Pageable pageable);
+    List<BookInfo> findTopByShelf(String shelfName, Pageable pageable);
 
     @Query(value = "{ 'title': { $regex: ?0, $options: 'i' }, 'authors.name': { $regex: ?1, $options: 'i' }, 'language': { $regex: ?2, $options: 'i' } }",
             fields = "{ 'title': 1, '_id': 0 }")

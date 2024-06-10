@@ -7,7 +7,6 @@ import com.bigdata.library.book.repository.ShelfBookSummary;
 import com.bigdata.library.book.repository.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,7 +19,7 @@ public class BookReader {
     private final GroupBookMongoRepository groupBookRepository;
     private final BookByShelfRepository bookByShelfRepository;
 
-    public List<BookImageUrl> findTopByShelf(String shelfName) {
+    public List<BookInfo> findTopByShelf(String shelfName) {
         PageRequest pageRequest = PageRequest.of(0, 10);
         return bookRepository.findTopByShelf(shelfName, pageRequest);
     }
