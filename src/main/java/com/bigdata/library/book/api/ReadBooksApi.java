@@ -37,8 +37,8 @@ public class ReadBooksApi {
 
     @GetMapping("/ratingDistributionForBook")
     @Operation(summary = "특정 책의 평점 분포 조회 - query4")
-    public List<BookRating> findRatingDistributionForBook(String bookId) {
-        return bookService.findRatingDistributionForBook(bookId);
+    public List<BookRating> findRatingDistributionForBook(String authorId) {
+        return bookService.findRatingDistributionForBook(authorId);
     }
 
     @GetMapping("/averageRatingForAuthor")

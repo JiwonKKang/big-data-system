@@ -17,7 +17,7 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
             "{ $sort: { 'ratings_count': -1 } }",
             "{ $group: { _id: '$author_id', firstBook: { $first: '$$ROOT' } } }",
             "{ $replaceRoot: { newRoot: '$firstBook' } }",
-            "{ $project: { _id: 0, bookId: '$id', title: 1, imageUrl: 1 } }",
+            "{ $project: { _id: 0, author_id : 1, bookId: '$id', title: 1, imageUrl: 1 } }",
             "{ $limit: 10 }"
     })
     List<BookInfo> findTopByShelf(String shelfName);
@@ -27,13 +27,13 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
     List<BookTitle> findBooksByTitleAuthorLanguage(String title, String author, String language);
 
     @Aggregation(pipeline = {
-            "{ $match: { id: ?0 } }",
+            "{ $match: { author_id: ?0 } }",
             "{ $addFields: { rating_dist_array: { $split: ['$rating_dist', '|'] } } }",
             "{ $addFields: { rating_counts: { $arrayToObject: { $map: { input: '$rating_dist_array', as: 'item', in: { k: { $arrayElemAt: [ { $split: ['$$item', ':'] }, 0 ] }, v: { $toInt: { $arrayElemAt: [ { $split: ['$$item', ':'] }, 1 ] } } } } } } } } }",
             "{ $group: { _id: '$author_id', total_5_star: { $sum: '$rating_counts.5' }, total_4_star: { $sum: '$rating_counts.4' }, total_3_star: { $sum: '$rating_counts.3' }, total_2_star: { $sum: '$rating_counts.2' }, total_1_star: { $sum: '$rating_counts.1' } } }",
             "{ $project: { _id: 0, author_id: '$_id', total_5_star: 1, total_4_star: 1, total_3_star: 1, total_2_star: 1, total_1_star: 1 } }"
     })
-    List<AuthorRating> getAuthorRatingDistributionForBook(String bookId);
+    List<AuthorRating> getAuthorRatingDistributionForBook(String authorId);
 
     @Aggregation(pipeline = {
             "{ $match: { id: ?0 } }",

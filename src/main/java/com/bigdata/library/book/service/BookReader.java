@@ -47,8 +47,8 @@ public class BookReader {
         return groupBookRepository.getTop3AuthorsPerShelf();
     }
 
-    public List<AuthorRating> findAuthorRatingDistributionForBook(String bookId) {
-        return bookRepository.getAuthorRatingDistributionForBook(bookId);
+    public List<AuthorRating> findAuthorRatingDistributionForBook(String authorId) {
+        return bookRepository.getAuthorRatingDistributionForBook(authorId);
     }
 
     public List<BookRating> findRatingDistributionForBook(String bookId) {
