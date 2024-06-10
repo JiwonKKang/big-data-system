@@ -71,13 +71,13 @@ public interface BookMongoRepository extends MongoRepository<BooksDocument, Stri
 
 
     @Aggregation(pipeline = {
-            "{ $match: { ratings_count: { $gte: 100000 }, original_publication_date: { $regex: '^(?:\\\\d{4}|\\\\d{4}-\\\\d{2}-\\\\d{2})$' } } }",
-            "{ $group: { _id: { year: { $toInt: { $substr: ['$original_publication_date', 0, 4] } }, book: '$title' }, averageRating: { $avg: '$average_rating' } } }",
-            "{ $match: { '_id.year': { $lte: 2024 } } }",
-            "{ $sort: { '_id.year': 1, averageRating: -1 } }",
-            "{ $group: { _id: '$_id.year', topBooks: { $push: { title: '$_id.book', averageRating: '$averageRating' } } } }",
-            "{ $project: { _id: 0, year: '$_id', topBooks: { $slice: ['$topBooks', 3] } } }",
-            "{ $sort: { year: -1 } }",
+            "{ '$match': { 'ratings_count': { '$gte': 100000 }, 'original_publication_date': { '$regex': '^(?:\\\\d{4}|\\\\d{4}-\\\\d{2}-\\\\d{2})$' } } }",
+            "{ '$group': { '_id': { 'year': { '$toInt': { '$substr': [ '$original_publication_date', 0, 4 ] } }, 'book': '$title' }, 'average_rating': { '$avg': '$average_rating' } } }",
+            "{ '$match': { '_id.year': { '$lte': 2024 } } }",
+            "{ '$sort': { '_id.year': 1, 'average_rating': -1 } }",
+            "{ '$group': { '_id': '$_id.year', 'topBooks': { '$push': { 'title': '$_id.book', 'averageRating': '$average_rating' } } } }",
+            "{ '$project': { '_id': 0, 'year': '$_id', 'topBooks': { '$slice': [ '$topBooks', 3 ] } } }",
+            "{ '$sort': { 'year': -1 } }"
     })
     List<TopBooksPerYear> getTop3BooksPerYear();
 
